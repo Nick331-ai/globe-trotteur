@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="fr-CA">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Globe-Trotteur</title>
+<meta name="description" content="Un quiz de géographie pour apprendre les pays du monde en s'amusant.">
+<meta name="theme-color" content="#0b2a4a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icones/icone-192.png">
+<link rel="apple-touch-icon" href="icones/icone-192.png">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- La carte reste toujours en arrière-plan -->
+<div id="carte" aria-label="Carte du monde"></div>
+<canvas id="confettis"></canvas>
+<div id="bulle" class="bulle cache"></div>
+<div id="infobulle" class="infobulle cache"></div>
+
+<!-- ===== Bienvenue (première fois) ===== -->
+<section id="ecran-bienvenue" class="ecran voile cache">
+  <div class="carton carton-bienvenue">
+    <div class="gros-emoji tourne">🌍</div>
+    <h1>Globe-Trotteur</h1>
+    <p class="sous-titre">Prêt à faire le tour du monde?</p>
+    <label for="champ-nom" class="etiquette">C'est quoi ton nom?</label>
+    <input id="champ-nom" type="text" maxlength="20" placeholder="Ton prénom" autocomplete="off">
+    <button id="btn-bienvenue" class="btn btn-principal btn-geant">C'est parti! 🚀</button>
+  </div>
+</section>
+
+<!-- ===== Accueil ===== -->
+<section id="ecran-accueil" class="ecran voile cache">
+  <div class="accueil">
+    <header class="accueil-entete">
+      <div>
+        <h1 id="salut">Salut! 👋</h1>
+        <div class="niveau-ligne">
+          <span id="niveau-titre" class="niveau-pastille">Niv. 1 · Touriste 🎒</span>
+          <span id="serie-jours" class="serie-pastille" title="Jours de suite">🔥 0</span>
+        </div>
+        <div class="barre-xp"><div id="barre-xp-rempli"></div></div>
+        <div id="xp-texte" class="xp-texte"></div>
+      </div>
+      <div class="entete-boutons">
+        <button id="btn-son" class="btn-rond" title="Son">🔊</button>
+        <button id="btn-reglages" class="btn-rond" title="Réglages et pays du quiz">⚙️</button>
+      </div>
+    </header>
+
+    <h2 class="titre-section">1. Où veux-tu voyager?</h2>
+    <div id="choix-region" class="puces"></div>
+
+    <div class="options-ligne">
+      <div class="bascule" id="choix-difficulte">
+        <button data-val="apprenti" class="actif" title="Partie sans fin : les pays ratés reviennent vite, les autres reviennent plus tard">🎓 Apprenti</button>
+        <button data-val="expert" title="Parties de 10 questions, mauvais choix proches">🧠 Expert</button>
+      </div>
+      <button id="btn-defi" class="puce-defi" aria-pressed="false">⏱️ Mode défi : <b>non</b></button>
+    </div>
+
+    <h2 class="titre-section">2. Choisis ton jeu!</h2>
+    <div class="modes">
+      <button class="mode" data-mode="trouve" style="--c1:#ff7a59;--c2:#ffb347">
+        <span class="mode-emoji">📍</span><span class="mode-nom">Trouve le pays</span><span class="mode-desc">Clique sur la carte</span>
+      </button>
+      <button class="mode" data-mode="quel" style="--c1:#5b8cff;--c2:#7be0ff">
+        <span class="mode-emoji">🤔</span><span class="mode-nom">C'est quel pays?</span><span class="mode-desc">4 choix de réponse</span>
+      </button>
+      <button class="mode" data-mode="drapeaux" style="--c1:#e94bbf;--c2:#ff8fd8">
+        <span class="mode-emoji">🚩</span><span class="mode-nom">Drapeaux</span><span class="mode-desc">Trouve le pays du drapeau</span>
+      </button>
+      <button class="mode" data-mode="capitales" style="--c1:#8a5cff;--c2:#c39bff">
+        <span class="mode-emoji">🏛️</span><span class="mode-nom">Capitales</span><span class="mode-desc">Devine la capitale</span>
+      </button>
+      <button class="mode" data-mode="explorer" style="--c1:#1fbf8f;--c2:#7af0c2">
+        <span class="mode-emoji">🔭</span><span class="mode-nom">Explorer</span><span class="mode-desc">Clique partout, sans pointage</span>
+      </button>
+    </div>
+
+    <div class="accueil-bas">
+      <button id="btn-badges" class="btn btn-secondaire">🏆 Mes badges <span id="compte-badges"></span></button>
+      <button id="btn-macarte" class="btn btn-secondaire">🗺️ Ma carte <span id="compte-pays"></span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Jeu (interface par-dessus la carte) ===== -->
+<section id="ecran-jeu" class="ecran cache">
+  <div class="hud">
+    <button id="btn-quitter" class="btn-rond" title="Retour au menu">✕</button>
+    <div id="points-progression" class="points-progression"></div>
+    <div class="hud-droite">
+      <div id="combo" class="combo cache">🔥 x2</div>
+      <div class="score"><span id="score">0</span> pts</div>
+    </div>
+  </div>
+  <div id="minuterie" class="minuterie cache"><div id="minuterie-rempli"></div></div>
+  <div id="question" class="question"></div>
+  <div class="zoom-boutons">
+    <button id="btn-zoom-plus" class="btn-rond petit" title="Zoomer">＋</button>
+    <button id="btn-zoom-moins" class="btn-rond petit" title="Dézoomer">－</button>
+    <button id="btn-zoom-region" class="btn-rond petit" title="Recentrer">🎯</button>
+  </div>
+  <button id="btn-indice" class="btn-indice" title="Indice (touche I)">💡 Indice</button>
+  <div id="anneau-pause" class="anneau-pause cache"><svg viewBox="0 0 56 56"><circle class="fond" cx="28" cy="28" r="24"/><circle class="progres" cx="28" cy="28" r="24"/></svg>👀</div>
+  <button id="btn-continuer" class="btn btn-principal btn-continuer cache">Suivant ➜</button>
+  <div id="choix" class="choix cache"></div>
+  <div id="legende" class="legende cache"></div>
+</section>
+
+<!-- ===== Fiche pays (après une réponse) ===== -->
+<div id="fiche" class="fiche cache">
+  <div id="fiche-titre" class="fiche-titre"></div>
+  <div class="fiche-corps">
+    <div id="fiche-drapeau" class="fiche-drapeau"></div>
+    <div class="fiche-texte">
+      <div id="fiche-nom" class="fiche-nom"></div>
+      <div id="fiche-capitale" class="fiche-capitale"></div>
+      <div id="fiche-fait" class="fiche-fait"></div>
+    </div>
+  </div>
+  <button id="btn-suivant" class="btn btn-principal">Suivant ➜</button>
+</div>
+
+<!-- ===== Fin de partie ===== -->
+<section id="ecran-fin" class="ecran voile cache">
+  <div class="carton carton-fin">
+    <div id="fin-etoiles" class="etoiles"></div>
+    <h1 id="fin-titre">Bravo!</h1>
+    <div id="fin-score" class="fin-score"></div>
+    <div id="fin-details" class="fin-details"></div>
+    <div id="fin-niveau" class="fin-niveau cache"></div>
+    <div id="fin-badges" class="fin-badges"></div>
+    <div class="fin-boutons">
+      <button id="btn-rejouer" class="btn btn-principal btn-geant">Encore une! 🔁</button>
+      <button id="btn-menu" class="btn btn-secondaire">🏠 Menu</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Badges ===== -->
+<section id="ecran-badges" class="ecran voile cache">
+  <div class="carton carton-large">
+    <button class="btn-rond fermer" data-fermer="ecran-badges">✕</button>
+    <h1>🏆 Mes badges</h1>
+    <div id="grille-badges" class="grille-badges"></div>
+  </div>
+</section>
+
+<!-- ===== Réglages ===== -->
+<section id="ecran-reglages" class="ecran voile cache">
+  <div class="carton carton-large">
+    <button class="btn-rond fermer" data-fermer="ecran-reglages">✕</button>
+    <h1>⚙️ Réglages</h1>
+
+    <h2 class="titre-section">Ton nom</h2>
+    <div class="ligne-form">
+      <input id="reglage-nom" type="text" maxlength="20" placeholder="Ton prénom" autocomplete="off">
+      <button id="btn-sauver-nom" class="btn btn-secondaire">Enregistrer</button>
+    </div>
+
+    <h2 class="titre-section">Mode 🎓 Apprenti</h2>
+    <div class="bascule" id="choix-pause">
+      <button data-val="3">3 s</button><button data-val="5">5 s</button><button data-val="8">8 s</button><button data-val="10">10 s</button>
+    </div>
+    <p class="aide-reglage">Temps pour regarder la carte après chaque réponse, avant que le bouton « Suivant » apparaisse.</p>
+
+    <h2 class="titre-section">Pays du quiz <span id="compte-actifs" class="compte-actifs"></span></h2>
+    <div id="zone-depot" class="zone-depot">
+      📄 Glisse un fichier <b>CSV</b> ici (un pays par ligne)
+      <span>ou</span>
+      <label class="btn btn-secondaire petit-btn">Choisir un fichier<input id="fichier-csv" type="file" accept=".csv,.txt,text/csv,text/plain" hidden></label>
+    </div>
+    <div id="resultat-import" class="resultat-import cache"></div>
+    <div class="outils-pays">
+      <input id="filtre-pays" type="search" placeholder="🔎 Chercher un pays">
+      <button id="btn-tout-cocher" class="btn btn-secondaire petit-btn">Tout cocher</button>
+      <button id="btn-tout-decocher" class="btn btn-secondaire petit-btn">Tout décocher</button>
+      <button id="btn-liste-defaut" class="btn btn-secondaire petit-btn">Liste par défaut</button>
+      <button id="btn-exporter" class="btn btn-secondaire petit-btn">Exporter en CSV</button>
+    </div>
+    <label class="case reglage-case"><input id="reglage-griser" type="checkbox"> Afficher en gris les pays qui ne sont pas dans le quiz</label>
+    <div id="liste-pays" class="liste-pays"></div>
+
+    <h2 class="titre-section">Zone danger</h2>
+    <button id="btn-reinitialiser" class="btn btn-danger petit-btn">Effacer ma progression</button>
+  </div>
+</section>
+
+<!-- ===== Notification ===== -->
+<div id="toast" class="toast cache"></div>
+
+<script src="js/vendor/d3.min.js"></script>
+<script src="js/vendor/topojson-client.min.js"></script>
+<script src="data/carte.js"></script>
+<script src="data/pays.js"></script>
+<script src="data/pays-actifs.js"></script>
+<script src="js/sons.js"></script>
+<script src="js/effets.js"></script>
+<script src="js/progression.js"></script>
+<script src="js/carte.js"></script>
+<script src="js/jeu.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "Globe-Trotteur",
+  "short_name": "Globe-Trotteur",
+  "description": "Un quiz de géographie pour apprendre les pays du monde en s'amusant.",
+  "lang": "fr-CA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0b2a4a",
+  "theme_color": "#0b2a4a",
+  "icons": [
+    { "src": "icones/icone-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icones/icone-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
